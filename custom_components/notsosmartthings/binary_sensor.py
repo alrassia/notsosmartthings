@@ -65,7 +65,8 @@ async def async_setup_entry(
 
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]
-
+            if component_id in device.status.disabled_components:
+                continue
             for capability in capabilities:
                 attrib = CAPABILITY_TO_ATTRIB[capability]
 
