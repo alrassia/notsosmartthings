@@ -24,9 +24,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 import homeassistant.util.color as color_util
 
-from ..const import DATA_BROKERS, DOMAIN
-from ..entity import SmartThingsEntity
-from ..utils import format_component_name, get_device_attributes, get_device_status
+from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
+from .utils import format_component_name, get_device_attributes, get_device_status
 
 
 async def async_setup_entry(

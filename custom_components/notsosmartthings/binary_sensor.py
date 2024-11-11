@@ -15,9 +15,9 @@ from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from ..const import DATA_BROKERS, DOMAIN
-from ..entity import SmartThingsEntity
-from ..utils import format_component_name, get_device_status, get_device_attributes
+from .const import DATA_BROKERS, DOMAIN
+from .entity import SmartThingsEntity
+from .utils import format_component_name, get_device_status, get_device_attributes
 
 CAPABILITY_TO_ATTRIB = {
     Capability.acceleration_sensor: Attribute.acceleration,
