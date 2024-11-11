@@ -1,6 +1,6 @@
 {
   "domain": "smartthings",
-  "name": "SmartThings",
+  "name": "NotSoSmartThings",
   "after_dependencies": ["cloud"],
   "codeowners": [],
   "config_flow": true,

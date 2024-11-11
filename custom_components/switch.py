@@ -9,12 +9,13 @@ from pysmartthings import Capability
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
-
+from .utils import format_component_name, get_device_attributes, get_device_status
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -23,11 +24,19 @@ async def async_setup_entry(
 ) -> None:
     """Add switches for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
-    async_add_entities(
-        SmartThingsSwitch(device)
-        for device in broker.devices.values()
-        if broker.any_assigned(device.device_id, "switch")
-    )
+    entities = []
+
+    for device in broker.devices.values():
+        if broker.any_assigned(device.device_id, Platform.SWITCH):
+            device_components = get_device_attributes(device)
+
+            for component_id in list(device_components.keys()):
+                attributes = device_components[component_id]
+
+                if attributes is None or Platform.SWITCH in attributes:
+                    entities.append(SmartThingsSwitch(device, component_id))
+
+    async_add_entities(entities)
 
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
@@ -40,17 +49,34 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 
 class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     """Define a SmartThings switch."""
+    def __init__(self, device, component_id: str | None = None) -> None:
+        """Init the class."""
+        super().__init__(device)
+        self._component_id = component_id
+        self._external_component_id = "main" if component_id is None else component_id
+
+        if component_id is not None:
+            self._attr_name = format_component_name(
+                 device.label, Platform.SWITCH, component_id
+            )
+            self._attr_unique_id = format_component_name(
+                 device.device_id, Platform.SWITCH, component_id, "."
+            )
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the switch off."""
-        await self._device.switch_off(set_status=True)
+        await self._device.switch_off(
+            set_status=True, component_id=self._external_component_id
+        )
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the switch on."""
-        await self._device.switch_on(set_status=True)
+        await self._device.switch_on(
+            set_status=True, component_id=self._external_component_id
+        )
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
         self.async_write_ha_state()
@@ -58,4 +84,6 @@ class SmartThingsSwitch(SmartThingsEntity, SwitchEntity):
     @property
     def is_on(self) -> bool:
         """Return true if light is on."""
-        return self._device.status.switch
+        status = get_device_status(self._device, self._component_id)
+
+        return False if status is None else status.switch

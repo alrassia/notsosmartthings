@@ -11,12 +11,13 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory
+from homeassistant.const import EntityCategory, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DATA_BROKERS, DOMAIN
-from .entity import SmartThingsEntity
+from ..const import DATA_BROKERS, DOMAIN
+from ..entity import SmartThingsEntity
+from ..utils import format_component_name, get_device_status, get_device_attributes
 
 CAPABILITY_TO_ATTRIB = {
     Capability.acceleration_sensor: Attribute.acceleration,
@@ -25,6 +26,7 @@ CAPABILITY_TO_ATTRIB = {
     Capability.motion_sensor: Attribute.motion,
     Capability.presence_sensor: Attribute.presence,
     Capability.sound_sensor: Attribute.sound,
+    Capability.switch: Attribute.power,
     Capability.tamper_alert: Attribute.tamper,
     Capability.valve: Attribute.valve,
     Capability.water_sensor: Attribute.water,
@@ -34,6 +36,7 @@ ATTRIB_TO_CLASS = {
     Attribute.contact: BinarySensorDeviceClass.OPENING,
     Attribute.filter_status: BinarySensorDeviceClass.PROBLEM,
     Attribute.motion: BinarySensorDeviceClass.MOTION,
+    Attribute.power: BinarySensorDeviceClass.POWER,
     Attribute.presence: BinarySensorDeviceClass.PRESENCE,
     Attribute.sound: BinarySensorDeviceClass.SOUND,
     Attribute.tamper: BinarySensorDeviceClass.PROBLEM,
@@ -54,9 +57,23 @@ async def async_setup_entry(
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
     sensors = []
     for device in broker.devices.values():
-        for capability in broker.get_assigned(device.device_id, "binary_sensor"):
-            attrib = CAPABILITY_TO_ATTRIB[capability]
-            sensors.append(SmartThingsBinarySensor(device, attrib))
+        #for capability in broker.get_assigned(device.device_id, "binary_sensor"):
+        #    attrib = CAPABILITY_TO_ATTRIB[capability]
+        #    sensors.append(SmartThingsBinarySensor(device, attrib))
+        capabilities = broker.get_assigned(device.device_id, Platform.BINARY_SENSOR)
+        device_components = get_device_attributes(device)
+
+        for component_id in list(device_components.keys()):
+            attributes = device_components[component_id]
+
+            for capability in capabilities:
+                attrib = CAPABILITY_TO_ATTRIB[capability]
+
+                if attributes is None or attrib in attributes:
+                    sensors.append(
+                        SmartThingsBinarySensor(device, attrib, component_id)
+                    )
+    
     async_add_entities(sensors)
 
 
@@ -70,16 +87,28 @@ def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
 class SmartThingsBinarySensor(SmartThingsEntity, BinarySensorEntity):
     """Define a SmartThings Binary Sensor."""
 
-    def __init__(self, device, attribute):
+    def __init__(self, device, attribute, component_id: str | None = None) -> None:
         """Init the class."""
         super().__init__(device)
         self._attribute = attribute
-        self._attr_name = f"{device.label} {attribute}"
-        self._attr_unique_id = f"{device.device_id}.{attribute}"
+        #self._attr_name = f"{device.label} {attribute}"
+        #self._attr_unique_id = f"{device.device_id}.{attribute}"
+        self._component_id = component_id
+
+        self._attr_name = format_component_name(device.label, attribute, component_id)
+        self._attr_unique_id = format_component_name(
+            device.device_id, attribute, component_id, "."
+        )
+
         self._attr_device_class = ATTRIB_TO_CLASS[attribute]
         self._attr_entity_category = ATTRIB_TO_ENTTIY_CATEGORY.get(attribute)
 
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
-        return self._device.status.is_on(self._attribute)
+        #return self._device.status.is_on(self._attribute)
+        status = get_device_status(self._device, self._component_id)
+
+        if status is None:
+            return False
+        return status.is_on(self._attribute)
