@@ -6,7 +6,6 @@ from typing import List
 class DeviceEntity(OriginalDeviceEntity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.status = self.Status()
 
     @property
     def disabled_components(self) -> List[str]:
