@@ -1,10 +1,6 @@
 from pysmartthings.device import DeviceEntity as OriginalDeviceEntity
 from typing import List
 
-
-
-
-
 class DeviceEntity(OriginalDeviceEntity):
     @property
     def disabled_components(self) -> List[str]:
