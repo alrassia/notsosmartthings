@@ -1,6 +1,8 @@
-from pysmartthings.device import DeviceEntity
+from pysmartthings.device import DeviceEntity as OriginalDeviceEntity
 
-class DeviceEntity(DeviceEntity):
+
+
+class DeviceEntity(OriginalDeviceEntity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.status = self.Status()
