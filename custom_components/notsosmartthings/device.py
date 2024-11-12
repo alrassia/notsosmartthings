@@ -9,8 +9,8 @@ class DeviceEntity(OriginalDeviceEntity):
         self.status = self.Status()
 
     @property
-    def disabled_components(self) -> List:
+    def disabled_components(self) -> List[str]:
         """Get the list of disabled components for this device."""
         if self._attributes.get("disabledComponents"):
             return self._attributes["disabledComponents"].value
-        return List
+        return []
