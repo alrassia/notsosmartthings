@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from pysmartthings.device import DeviceEntity
+
 
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
 
 from .const import DOMAIN, SIGNAL_SMARTTHINGS_UPDATE
+from .device import DeviceEntity
 
 
 class SmartThingsEntity(Entity):

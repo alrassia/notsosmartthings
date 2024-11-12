@@ -6,7 +6,6 @@ from collections.abc import Sequence
 from typing import NamedTuple
 
 from pysmartthings import Attribute, Capability
-from pysmartthings.device import DeviceEntity
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -35,6 +34,7 @@ from homeassistant.util import dt as dt_util
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
 from .utils import format_component_name, get_device_attributes, get_device_status
+from .device import DeviceEntity
 
 class Map(NamedTuple):
     """Tuple for mapping Smartthings capabilities to Home Assistant sensors."""
@@ -691,7 +691,6 @@ class SmartThingsSensor(SmartThingsEntity, SensorEntity):
         super().__init__(device)
         self._component_id = component_id
         self._attribute = attribute
-        self._component_id = component_id
 
         self._attr_name = format_component_name(device.label, name, component_id)
         self._attr_unique_id = format_component_name(
@@ -724,7 +723,7 @@ class SmartThingsSensor(SmartThingsEntity, SensorEntity):
 class SmartThingsThreeAxisSensor(SmartThingsEntity, SensorEntity):
     """Define a SmartThings Three Axis Sensor."""
 
-    def __init__(self, device, index):
+    def __init__(self, device, index, component_id):
         """Init the class."""
         super().__init__(device)
         self._index = index
