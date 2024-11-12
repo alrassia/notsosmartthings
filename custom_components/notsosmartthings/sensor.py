@@ -582,6 +582,7 @@ async def async_setup_entry(
             if component_id in device.disabled_components:
                 _LOGGER.debug("Sensor.py - Skipping disabled component: %s", component_id)
             else:
+                _LOGGER.debug("Sensor.py - Adding component: %s", component_id)
                 entities.extend(
                     _get_device_sensor_entities(broker, device, component_id, attributes)
                 )

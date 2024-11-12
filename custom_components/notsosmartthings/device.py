@@ -12,6 +12,8 @@ class DeviceEntity(OriginalDeviceEntity):
         if hasattr(self._status, '_attributes') and self._status._attributes.get("disabledComponents"):
             disabled_components = self._status._attributes["disabledComponents"].value
             if disabled_components is not None:
-                _LOGGER.debug("Disabled components: %s", disabled_components)
                 return disabled_components
+            _LOGGER.debug("Disabled components: %s", disabled_components)
+            _LOGGER.debug("_attributes: %s", hasattr(self._status, '_attributes'))
+            _LOGGER.debug("DisabledComponents: %s", self._status._attributes.get("disabledComponents"))
         return []
