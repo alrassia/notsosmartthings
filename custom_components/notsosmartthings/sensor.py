@@ -1,9 +1,11 @@
 """Support for sensors through the SmartThings cloud API."""
+import logging
 
 from __future__ import annotations
 
 from collections.abc import Sequence
 from typing import NamedTuple
+
 
 from pysmartthings import Attribute, Capability
 
@@ -35,6 +37,8 @@ from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
 from .utils import format_component_name, get_device_attributes, get_device_status
 from .device import DeviceEntity
+
+_LOGGER = logging.getLogger(__name__)
 
 class Map(NamedTuple):
     """Tuple for mapping Smartthings capabilities to Home Assistant sensors."""
@@ -576,14 +580,14 @@ async def async_setup_entry(
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]
             if component_id in device.disabled_components:
-                continue
-            entities.extend(
-                _get_device_sensor_entities(broker, device, component_id, attributes)
-            )
-            entities.extend(
-                _get_device_switch_entities(broker, device, component_id, attributes)
-            )
-
+                _LOGGER.debug("Sensor.py - Skipping disabled component: %s", component_id)
+            else:
+                entities.extend(
+                    _get_device_sensor_entities(broker, device, component_id, attributes)
+                )
+                entities.extend(
+                    _get_device_switch_entities(broker, device, component_id, attributes)
+                ) 
     async_add_entities(entities)
 
 def _get_device_sensor_entities(
