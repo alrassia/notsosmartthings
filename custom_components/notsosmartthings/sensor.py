@@ -574,7 +574,7 @@ async def async_setup_entry(
         device_components = get_device_attributes(device)
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]
-            if component_id in device.status.disabled_components:
+            if component_id in device.disabled_components:
                 continue
             entities.extend(
                 _get_device_sensor_entities(broker, device, component_id, attributes)

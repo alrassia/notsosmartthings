@@ -32,7 +32,7 @@ async def async_setup_entry(
 
             for component_id in list(device_components.keys()):
                 attributes = device_components[component_id]
-                if component_id in device.status.disabled_components:
+                if component_id in device.disabled_components:
                     continue
                 if attributes is None or Platform.SWITCH in attributes:
                     entities.append(SmartThingsSwitch(device, component_id))
