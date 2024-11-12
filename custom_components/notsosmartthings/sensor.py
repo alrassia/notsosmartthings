@@ -572,6 +572,7 @@ async def async_setup_entry(
 
     for device in broker.devices.values():
         device = DeviceEntity(device)
+        print(f"Device: {device}, Disabled Components: {device.disabled_components}")  # Debugging statement
         device_components = get_device_attributes(device)
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]
