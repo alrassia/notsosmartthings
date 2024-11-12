@@ -1,11 +1,9 @@
 """Support for sensors through the SmartThings cloud API."""
-import logging
-
 from __future__ import annotations
 
 from collections.abc import Sequence
 from typing import NamedTuple
-
+import logging 
 
 from pysmartthings import Attribute, Capability
 
