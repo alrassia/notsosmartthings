@@ -358,7 +358,7 @@ async def smartapp_sync_subscriptions(
     # Build set of capabilities and prune unsupported ones
     capabilities = set()
     for device in devices:
-        if (
+        """"if (
             "custom.disabledCapabilities" in device.capabilities
             and device.status.attributes["disabledCapabilities"].value is not None
         ):
@@ -378,8 +378,8 @@ async def smartapp_sync_subscriptions(
             _LOGGER.debug(
                 "Device '%s' does not have disabled capabilities",
                 device.device_id,
-            )
-            capabilities.update(device.capabilities)
+            )"""
+        capabilities.update(device.capabilities)
     # Remove items not defined in the library
     capabilities.intersection_update(CAPABILITIES)
     # Remove unused capabilities
