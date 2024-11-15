@@ -9,11 +9,9 @@ class DeviceEntity(OriginalDeviceEntity):
     @property
     def disabled_components(self) -> List[str]:
         """Get the list of disabled components for this device.."""
-        if hasattr(self._status, '_attributes') and self._status._attributes.get("disabledComponents"):
-            disabled_components = self._status._attributes["disabledComponents"].value
-            if disabled_components is not None:
-                return disabled_components
-            _LOGGER.debug("Disabled components: %s", disabled_components)
-            _LOGGER.debug("_attributes: %s", hasattr(self._status, '_attributes'))
-            _LOGGER.debug("DisabledComponents: %s", self._status._attributes.get("disabledComponents"))
+        _LOGGER.debug("Disabled components: %s", self._status._attributes["disabledComponents"].value)
+        _LOGGER.debug("DisabledComponents: %s", self._status._attributes.get("disabledComponents"))
+        
+        if self._status._attributes.get("disabledComponents"):
+            return self._status._attributes["disabledComponents"].value
         return []
