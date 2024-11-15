@@ -573,8 +573,10 @@ async def async_setup_entry(
     entities: list[SensorEntity] = []
 
     for device in broker.devices.values():
+        _LOGGER.debug(f"Adding sensors for device: {device.label}")
         device_components = get_device_attributes(device)
         for component_id in list(device_components.keys()):
+            _LOGGER.debug(f"Adding sensors of component_id: {component_id}")
             attributes = device_components[component_id]
             entities.extend(
                 _get_device_sensor_entities(broker, device, component_id, attributes)
