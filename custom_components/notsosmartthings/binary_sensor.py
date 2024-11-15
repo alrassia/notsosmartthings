@@ -58,10 +58,6 @@ async def async_setup_entry(
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
     sensors = []
     for device in broker.devices.values():
-        #for capability in broker.get_assigned(device.device_id, "binary_sensor"):
-        #    attrib = CAPABILITY_TO_ATTRIB[capability]
-        #    sensors.append(SmartThingsBinarySensor(device, attrib))
-        device = DeviceEntity(device)
         capabilities = broker.get_assigned(device.device_id, Platform.BINARY_SENSOR)
         device_components = get_device_attributes(device)
 
