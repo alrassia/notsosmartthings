@@ -362,13 +362,13 @@ async def smartapp_sync_subscriptions(
             "custom.disabledCapabilities" in device.capabilities
             and device.status.attributes["disabledCapabilities"].value is not None
         ):
-            _LOGGER.debug(
-                "Device '%s' has disabled capabilities",
-                device.device_id,
-            )
             disabled_capabilities = device.status.attributes[
                 "disabledCapabilities"
             ].value
+            _LOGGER.debug(
+                "Device '%s' has disabled capabilities: %s",
+                device.device_id,disabled_capabilities,
+            )
             new_capabilities = device.capabilities
             for disabled_capability in disabled_capabilities:
                 if disabled_capability in new_capabilities:
