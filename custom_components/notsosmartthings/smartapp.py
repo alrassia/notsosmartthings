@@ -362,6 +362,10 @@ async def smartapp_sync_subscriptions(
             "custom.disabledCapabilities" in device.capabilities
             and device.status.attributes["disabledCapabilities"].value is not None
         ):
+            _LOGGER.debug(
+                "Device '%s' has disabled capabilities",
+                device.device_id,
+            )
             disabled_capabilities = device.status.attributes[
                 "disabledCapabilities"
             ].value
@@ -371,6 +375,10 @@ async def smartapp_sync_subscriptions(
                     new_capabilities.remove(disabled_capability)
             capabilities.update(new_capabilities)
         else:
+            _LOGGER.debug(
+                "Device '%s' does not have disabled capabilities",
+                device.device_id,
+            )
             capabilities.update(device.capabilities)
     # Remove items not defined in the library
     capabilities.intersection_update(CAPABILITIES)

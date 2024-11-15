@@ -609,7 +609,7 @@ def _get_device_sensor_entities(
             )
         else:
             maps = CAPABILITY_TO_SENSORS[capability]
-
+            _LOGGER.debug(f"adding sensor capability: {maps}")
             for m in maps:
                 if (
                     component_attributes is not None
