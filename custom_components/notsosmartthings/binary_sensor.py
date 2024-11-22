@@ -62,7 +62,7 @@ async def async_setup_entry(
         device_components = get_device_components(device)
 
         for component_id in list(device_components.keys()):
-            attributes = device_components[component_id]
+            attributes = device_components[component_id]["attributes"]
             for capability in capabilities:
                 attrib = CAPABILITY_TO_ATTRIB[capability]
 
