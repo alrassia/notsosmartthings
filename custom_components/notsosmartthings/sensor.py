@@ -33,7 +33,7 @@ from homeassistant.util import dt as dt_util
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
-from .utils import format_component_name, get_device_attributes, get_device_status
+from .utils import format_component_name, get_device_components, get_device_status
 from .device import DeviceEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -574,12 +574,13 @@ async def async_setup_entry(
 
     for device in broker.devices.values():
         _LOGGER.debug(f"Adding sensors for device: {device.label}")
-        device_components = get_device_attributes(device)
+        device_components = get_device_components(device)
         for component_id in list(device_components.keys()):
             _LOGGER.debug(f"Adding sensors of component_id: {component_id}")
-            attributes = device_components[component_id]
+            attributes = device_components[component_id]["attributes"]
+            disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             entities.extend(
-                _get_device_sensor_entities(broker, device, component_id, attributes)
+                _get_device_sensor_entities(broker, device, component_id, attributes, disabled_capabilities)
             )
             entities.extend(
                 _get_device_switch_entities(broker, device, component_id, attributes)
@@ -587,10 +588,13 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 def _get_device_sensor_entities(
-    broker, device, component_id: str | None, component_attributes: list[str] | None
+    broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
 ) -> list[SensorEntity]:
     entities: list[SensorEntity] = []
     for capability in broker.get_assigned(device.device_id, Platform.SENSOR):
+        if capability in disabled_capabilities:
+            _LOGGER.debug(f"Skipping disabled capability: {capability}")
+            continue
         if capability == Capability.three_axis:
             entities.extend(
                 [

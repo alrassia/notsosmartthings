@@ -17,7 +17,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
-from .utils import format_component_name, get_device_status, get_device_attributes
+from .utils import format_component_name, get_device_status, get_device_components
 from .device import DeviceEntity
 
 CAPABILITY_TO_ATTRIB = {
@@ -59,7 +59,7 @@ async def async_setup_entry(
     sensors = []
     for device in broker.devices.values():
         capabilities = broker.get_assigned(device.device_id, Platform.BINARY_SENSOR)
-        device_components = get_device_attributes(device)
+        device_components = get_device_components(device)
 
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]

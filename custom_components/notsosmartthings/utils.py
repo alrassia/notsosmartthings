@@ -28,7 +28,7 @@ def get_device_status(device, component_id: str | None) -> DeviceStatusBase:
     return status
 
 
-def get_device_attributes(device) -> dict[str | None, list[str] | None]:
+def get_device_components(device) -> dict[str | None, list[str] | None]:
     """Construct list of components related to a device."""
     result: dict[str | None, list[str] | None] = {}
     device_components_keys = list(device.status.components.keys())
@@ -46,12 +46,18 @@ def get_device_attributes(device) -> dict[str | None, list[str] | None]:
 
         component_id = None
         component_attributes = None
+        disabled_capabilities = []
 
         if component_key is not None:
             component = device.status.components[component_key]
             component_id = component.component_id
             component_attributes = list(component.attributes.keys())
+            if "disabledCapabilities" in component.attributes:
+                disabled_capabilities = component.attributes["disabledCapabilities"].value
 
-        result[component_id] = component_attributes
+        result[component_id] = {
+            "attributes": component_attributes,
+            "disabled_capabilities": disabled_capabilities,
+        }
 
     return result

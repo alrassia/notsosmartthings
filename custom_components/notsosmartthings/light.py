@@ -26,7 +26,7 @@ import homeassistant.util.color as color_util
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
-from .utils import format_component_name, get_device_attributes, get_device_status
+from .utils import format_component_name, get_device_components, get_device_status
 
 
 async def async_setup_entry(
@@ -40,7 +40,7 @@ async def async_setup_entry(
 
     for device in broker.devices.values():
         if broker.any_assigned(device.device_id, Platform.LIGHT):
-            device_components = get_device_attributes(device)
+            device_components = get_device_components(device)
 
             for component_id in list(device_components.keys()):
                 attributes = device_components[component_id]
