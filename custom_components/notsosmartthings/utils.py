@@ -41,7 +41,7 @@ def get_device_attributes(device) -> dict[str | None, list[str] | None]:
     if len(device_components_keys) > 1:
         components_keys.extend(device_components_keys)
 
-    disabled_components = device.status.attributes["disabledComponents"]
+    disabled_components = device.status.attributes["disabledComponents"].value
     _LOGGER.debug("Utils.py: get_device_attributes: Disabled components: %s", disabled_components)
     
     for component_key in components_keys:
