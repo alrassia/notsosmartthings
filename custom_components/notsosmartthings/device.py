@@ -15,3 +15,13 @@ class DeviceEntity(OriginalDeviceEntity):
         if self._status._attributes.get("disabledComponents"):
             return self._status._attributes["disabledComponents"].value
         return []
+
+    @property
+    def disabled_capabilities(self) -> List[str]:
+        """Get the list of disabled components for this device.."""
+        _LOGGER.debug("Disabled components: %s", self._status._attributes["disabledCapabilities"].value)
+        _LOGGER.debug("DisabledComponents: %s", self._status._attributes.get("disabledCapabilities"))
+        
+        if self._status._attributes.get("disabledCapabilities"):
+            return self._status._attributes["disabledCapabilities"].value
+        return []
