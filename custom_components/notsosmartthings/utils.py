@@ -1,9 +1,6 @@
 """Shared functionality to serve multiple HA components."""
-import logging
 
 from pysmartthings import DeviceStatusBase
-
-_LOGGER = logging.getLogger(__name__)
 
 def format_component_name(
     prefix: str, suffix: str, component_id: str | None, delimiter: str = " "
@@ -42,18 +39,15 @@ def get_device_attributes(device) -> dict[str | None, list[str] | None]:
         components_keys.extend(device_components_keys)
 
     disabled_components = device.status.attributes["disabledComponents"].value
-    _LOGGER.debug("Utils.py: get_device_attributes: Disabled components: %s", disabled_components)
     
     for component_key in components_keys:
         if component_key is not None and component_key in disabled_components:
-            _LOGGER.debug("Utils.py: get_device_attributes: Component %s is disabled %s", component_key, disabled_components)
             continue
 
         component_id = None
         component_attributes = None
 
         if component_key is not None:
-            _LOGGER.debug("Utils.py: get_device_attributes: Component %s is enabled %s", component_key, disabled_components)
             component = device.status.components[component_key]
             component_id = component.component_id
             component_attributes = list(component.attributes.keys())
