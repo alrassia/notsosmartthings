@@ -44,6 +44,9 @@ async def async_setup_entry(
 
             for component_id in list(device_components.keys()):
                 attributes = device_components[component_id]["attributes"]
+                disabled_capabilities = device_components[component_id][
+                    "disabled_capabilities"
+                ]
 
                 if attributes is None or Platform.SWITCH in attributes:
                     entities.append(SmartThingsLight(device, component_id))

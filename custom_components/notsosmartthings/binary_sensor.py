@@ -63,8 +63,11 @@ async def async_setup_entry(
 
         for component_id in list(device_components.keys()):
             attributes = device_components[component_id]["attributes"]
+            disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             for capability in capabilities:
                 attrib = CAPABILITY_TO_ATTRIB[capability]
+                if capability in disabled_capabilities: 
+                    continue
 
                 if attributes is None or attrib in attributes:
                     sensors.append(
