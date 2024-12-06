@@ -180,7 +180,7 @@ def _get_device_number_entities(
                         component_attributes[Attribute.cooling_setpoint_range]["minimum"].value,
                         component_attributes[Attribute.cooling_setpoint_range]["maximum"].value,
                         component_attributes[Attribute.cooling_setpoint_range]["step"].value,
-                        NumberMode.Auto,
+                        NumberMode.AUTO,
                         None,
                         component_id,
                     ),
