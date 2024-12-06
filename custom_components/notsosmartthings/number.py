@@ -42,7 +42,7 @@ class Map(NamedTuple):
 # Example capabilities
 CAPABILITY_TO_NUMBER = {
     Capability.thermostat_cooling_setpoint: [
-        map(
+        Map(
             Attribute.cooling_setpoint,
             "Cooling Setpoint",
             "set_cooling_setpoint",
