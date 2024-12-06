@@ -75,8 +75,9 @@ async def async_setup_entry(
         _LOGGER.debug(f"Adding numbers for device: {device.label}")
         device_components = get_device_components(device)
         for component_id in list(device_components.keys()):
-            _LOGGER.debug(f"Adding numbers of component_id: {component_id}")
+            _LOGGER.debug(f"Adding numbers of component_id: {component_id} in {device_components}")
             attributes = device_components[component_id]["attributes"]
+            _LOGGER.debug(f"Attributes: {attributes}")
             disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             entities.extend(
                 _get_device_number_entities(broker, device, component_id, attributes, disabled_capabilities)
@@ -102,9 +103,9 @@ def _get_device_number_entities(
                         "set_cooling_setpoint",
                         UnitOfTemperature.CELSIUS,
                         NumberDeviceClass.TEMPERATURE,
-                        component_attributes[Attribute.cooling_setpoint_range]["minimum"].value,
-                        component_attributes[Attribute.cooling_setpoint_range]["maximum"].value,
-                        component_attributes[Attribute.cooling_setpoint_range]["step"].value,
+                        device.status.attributes[Attribute.cooling_setpoint_range].value["minimum"],
+                        device.status.attributes[Attribute.cooling_setpoint_range].value["maximum"],
+                        device.status.attributes[Attribute.cooling_setpoint_range].value["step"],
                         NumberMode.AUTO,
                         None,
                         component_id,
