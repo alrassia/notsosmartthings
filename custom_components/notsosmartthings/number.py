@@ -84,7 +84,6 @@ async def async_setup_entry(
             )
     async_add_entities(entities)
 
-"""TODO: make min, max and step dynamic based on the device's capabilities"""
 def _get_device_number_entities(
     broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
 ) -> list[NumberEntity]:
