@@ -115,6 +115,7 @@ class SmartThingsNumber(SmartThingsEntity, NumberEntity):
         self._attr_native_max_value = max_value
         self._attr_native_step = step
         self._attr_mode = mode
+        self._attr_command = command
         self._attr_entity_category = entity_category
         self._attr_native_unit_of_measurement = default_unit
         self._attr_device_class = device_class
@@ -173,6 +174,7 @@ def _get_device_number_entities(
                         device,
                         Attribute.cooling_setpoint,
                         "Cooling Setpoint",
+                        "set_cooling_setpoint",
                         UnitOfTemperature.CELSIUS,
                         NumberDeviceClass.TEMPERATURE,
                         component_attributes[Attribute.cooling_setpoint_range]["minimum"].value,
@@ -201,9 +203,9 @@ def _get_device_number_entities(
                 entity = SmartThingsNumber(
                     device,
                     m.attribute,
-                    m.command,
                     m.name,
-                    m.unit_of_measurement,
+                    m.command,
+                    m.default_unit,
                     m.device_class,
                     m.min_value,
                     m.max_value,
