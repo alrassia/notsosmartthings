@@ -199,7 +199,7 @@ class SmartThingsNumber(SmartThingsEntity, NumberEntity):
     @property
     def native_step(self):
         """Return the step value."""
-        return self._attr_step
+        return self._attr_native_step
 
     @property
     def native_unit_of_measurement(self):
