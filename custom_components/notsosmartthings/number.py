@@ -103,9 +103,9 @@ def _get_device_number_entities(
                         "set_cooling_setpoint",
                         UnitOfTemperature.CELSIUS,
                         NumberDeviceClass.TEMPERATURE,
-                        device.status.attributes[Attribute.cooling_setpoint_range].value["minimum"],
-                        device.status.attributes[Attribute.cooling_setpoint_range].value["maximum"],
-                        device.status.attributes[Attribute.cooling_setpoint_range].value["step"],
+                        1, """" temp hardcoded, todo make dynamic"""
+                        7, """" temp hardcoded"""
+                        1, """" temp hardcoded"""
                         NumberMode.AUTO,
                         None,
                         component_id,
