@@ -51,7 +51,7 @@ CAPABILITY_TO_NUMBER = {
             -460,
             10000,
             1,
-            NumberMode.Auto,
+            NumberMode.AUTO,
             None,
         ),
     ],
