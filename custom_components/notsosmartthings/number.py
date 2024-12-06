@@ -35,7 +35,7 @@ class Map(NamedTuple):
     device_class: NumberDeviceClass | None
     min_value: float | None
     max_value: float | None
-    step: float = None
+    step: float | None
     mode: NumberMode | None
     entity_category: EntityCategory | None
 
