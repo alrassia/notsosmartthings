@@ -17,7 +17,7 @@ from homeassistant.components.number import NumberEntity, NumberMode, NumberDevi
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME, PERCENTAGE, Platform, EntityCategory, UnitOfTemperature
 
-from .const import DOMAIN, DATA_BROKERS, UNIT_MAP
+from .const import DOMAIN, DATA_BROKERS
 from .entity import SmartThingsEntity
 from .utils import format_component_name, get_device_components, get_device_status
 from .device import DeviceEntity
