@@ -92,6 +92,9 @@ def _get_device_number_entities(
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Skipping disabled capability: {capability}")
             continue
+        if component_id not in component_attributes:
+            _LOGGER.debug(f"Skipping capability for disabled component {component_id}: {capability}")
+            continue
         if capability == Capability.thermostat_cooling_setpoint:
             _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability}")
             entities.extend(
