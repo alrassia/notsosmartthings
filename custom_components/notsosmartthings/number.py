@@ -36,7 +36,7 @@ class Map(NamedTuple):
     min_value: float | None
     max_value: float | None
     step: float = None
-    mode: NumberMode | None = None
+    mode: NumberMode | None
     entity_category: EntityCategory | None
 
 # Example capabilities
