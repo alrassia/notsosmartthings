@@ -75,9 +75,8 @@ async def async_setup_entry(
         _LOGGER.debug(f"Adding numbers for device: {device.label}")
         device_components = get_device_components(device)
         for component_id in list(device_components.keys()):
-            _LOGGER.debug(f"Adding numbers of component_id: {component_id} in {device_components}")
+            _LOGGER.debug(f"Adding numbers of component_id: {component_id} with {device_components[component_id]}")
             attributes = device_components[component_id]["attributes"]
-            _LOGGER.debug(f"Attributes: {attributes}")
             disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             entities.extend(
                 _get_device_number_entities(broker, device, component_id, attributes, disabled_capabilities)
@@ -90,10 +89,10 @@ def _get_device_number_entities(
     entities: list[NumberEntity] = []
     for capability in broker.get_assigned(device.device_id, Platform.NUMBER):
         if capability in disabled_capabilities:
-            _LOGGER.debug(f"Skipping disabled capability: {capability}")
+            _LOGGER.debug(f"Number: Skipping disabled capability: {capability}")
             continue
-        if component_id not in component_attributes:
-            _LOGGER.debug(f"Skipping capability for disabled component {component_id}: {capability}")
+        if component_attributes[component_id] is None:
+            _LOGGER.debug(f"Number: Skipping disabled component {component_id}: {capability}")
             continue
         if capability == Capability.thermostat_cooling_setpoint:
             _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability}")
