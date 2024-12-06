@@ -84,6 +84,7 @@ async def async_setup_entry(
             )
     async_add_entities(entities)
 
+"""TODO: make min, max and step dynamic based on the device's capabilities"""
 def _get_device_number_entities(
     broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
 ) -> list[NumberEntity]:
@@ -93,7 +94,7 @@ def _get_device_number_entities(
             _LOGGER.debug(f"Skipping disabled capability: {capability}")
             continue
         if capability == Capability.thermostat_cooling_setpoint:
-            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {component_attributes}")
+            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability}")
             entities.extend(
                 [
                     SmartThingsNumber(
@@ -103,9 +104,9 @@ def _get_device_number_entities(
                         "set_cooling_setpoint",
                         UnitOfTemperature.CELSIUS,
                         NumberDeviceClass.TEMPERATURE,
-                        1, """" temp hardcoded, todo make dynamic"""
-                        7, """" temp hardcoded"""
-                        1, """" temp hardcoded"""
+                        1, 
+                        7, 
+                        1, 
                         NumberMode.AUTO,
                         None,
                         component_id,
