@@ -91,7 +91,7 @@ def _get_device_number_entities(
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Number: Skipping disabled capability: {capability}")
             continue
-        if component_id is not None and component_attributes[component_id] is None:
+        if component_attributes is None:
             _LOGGER.debug(f"Number: Skipping disabled component {component_id}: {capability}")
             continue
         if capability == Capability.thermostat_cooling_setpoint:
