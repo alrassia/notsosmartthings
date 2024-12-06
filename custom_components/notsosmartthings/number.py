@@ -83,6 +83,71 @@ async def async_setup_entry(
             )
     async_add_entities(entities)
 
+def _get_device_number_entities(
+    broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
+) -> list[NumberEntity]:
+    entities: list[NumberEntity] = []
+    for capability in broker.get_assigned(device.device_id, Platform.NUMBER):
+        if capability in disabled_capabilities:
+            _LOGGER.debug(f"Skipping disabled capability: {capability}")
+            continue
+        if capability == Capability.thermostat_cooling_setpoint:
+            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {component_attributes}")
+            entities.extend(
+                [
+                    SmartThingsNumber(
+                        device,
+                        Attribute.cooling_setpoint,
+                        "Cooling Setpoint",
+                        "set_cooling_setpoint",
+                        UnitOfTemperature.CELSIUS,
+                        NumberDeviceClass.TEMPERATURE,
+                        component_attributes[Attribute.cooling_setpoint_range]["minimum"].value,
+                        component_attributes[Attribute.cooling_setpoint_range]["maximum"].value,
+                        component_attributes[Attribute.cooling_setpoint_range]["step"].value,
+                        NumberMode.AUTO,
+                        None,
+                        component_id,
+                    ),
+                ]
+            )
+        else:
+            maps = CAPABILITY_TO_NUMBER[capability]
+            _LOGGER.debug(f"adding number capability: {maps}")
+            for m in maps:
+                if (
+                    component_attributes is not None
+                    and m.attribute not in component_attributes
+                ):
+                    continue
+                    
+                if component_id is None and m.attribute in [
+                    Attribute.cooling_setpoint,
+                ]:
+                    continue
+                entity = SmartThingsNumber(
+                    device,
+                    m.attribute,
+                    m.name,
+                    m.command,
+                    m.default_unit,
+                    m.device_class,
+                    m.min_value,
+                    m.max_value,
+                    m.step,
+                    m.mode,
+                    m.entity_category,
+                    component_id,
+                )
+            entities.append(entity)
+    return entities
+
+def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
+    """Return all capabilities supported if minimum required are present."""
+    return [
+        capability for capability in CAPABILITY_TO_NUMBER if capability in capabilities
+    ]
+
 class SmartThingsNumber(SmartThingsEntity, NumberEntity):
     """Representation of a custom number entity."""
 
@@ -158,67 +223,3 @@ class SmartThingsNumber(SmartThingsEntity, NumberEntity):
         await getattr(self.device, self._command)(int(value), set_status=True)
         self.async_write_ha_state()
 
-def _get_device_number_entities(
-    broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
-) -> list[NumberEntity]:
-    entities: list[NumberEntity] = []
-    for capability in broker.get_assigned(device.device_id, Platform.NUMBER):
-        if capability in disabled_capabilities:
-            _LOGGER.debug(f"Skipping disabled capability: {capability}")
-            continue
-        if capability == Capability.thermostat_cooling_setpoint:
-            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability}")
-            entities.extend(
-                [
-                    SmartThingsNumber(
-                        device,
-                        Attribute.cooling_setpoint,
-                        "Cooling Setpoint",
-                        "set_cooling_setpoint",
-                        UnitOfTemperature.CELSIUS,
-                        NumberDeviceClass.TEMPERATURE,
-                        component_attributes[Attribute.cooling_setpoint_range]["minimum"].value,
-                        component_attributes[Attribute.cooling_setpoint_range]["maximum"].value,
-                        component_attributes[Attribute.cooling_setpoint_range]["step"].value,
-                        NumberMode.AUTO,
-                        None,
-                        component_id,
-                    ),
-                ]
-            )
-        else:
-            maps = CAPABILITY_TO_NUMBER[capability]
-            _LOGGER.debug(f"adding number capability: {maps}")
-            for m in maps:
-                if (
-                    component_attributes is not None
-                    and m.attribute not in component_attributes
-                ):
-                    continue
-                    
-                if component_id is None and m.attribute in [
-                    Attribute.cooling_setpoint,
-                ]:
-                    continue
-                entity = SmartThingsNumber(
-                    device,
-                    m.attribute,
-                    m.name,
-                    m.command,
-                    m.default_unit,
-                    m.device_class,
-                    m.min_value,
-                    m.max_value,
-                    m.step,
-                    m.mode,
-                    m.entity_category,
-                    component_id,
-                )
-            entities.append(entity)
-    return entities
-
-def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
-    """Return all capabilities supported if minimum required are present."""
-    return [
-        capability for capability in CAPABILITY_TO_NUMBER if capability in capabilities
-    ]
