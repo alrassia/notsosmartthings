@@ -24,12 +24,14 @@ from homeassistant.components.climate import (
     HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
+from .utils import format_component_name, get_device_components, get_device_status
+from .device import DeviceEntity
 
 ATTR_OPERATION_STATE = "operation_state"
 MODE_TO_STATE = {
@@ -114,13 +116,21 @@ async def async_setup_entry(
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
     entities: list[ClimateEntity] = []
     for device in broker.devices.values():
+        capabilities = broker.get_assigned(device.device_id, CLIMATE_DOMAIN)
+        device_components = get_device_components(device)
         if not broker.any_assigned(device.device_id, CLIMATE_DOMAIN):
             continue
-        if all(capability in device.capabilities for capability in ac_capabilities):
-            entities.append(SmartThingsAirConditioner(device))
-        else:
-            entities.append(SmartThingsThermostat(device))
-    async_add_entities(entities, True)
+        for component_id in list(device_components.keys()):
+            attributes = device_components[component_id]["attributes"]
+            disabled_capabilities = device_components[component_id]["disabled_capabilities"]
+            for capability in capabilities:
+                if capability in disabled_capabilities:
+                    continue
+                if capability in ac_capabilities:
+                    entities.append(SmartThingsAirConditioner(device))
+                else:
+                    entities.append(SmartThingsThermostat(device))
+        async_add_entities(entities, True)
 
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:

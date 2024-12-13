@@ -36,13 +36,13 @@ STORAGE_VERSION = 1
 # to be drawn-down and represented by the most appropriate platform.
 PLATFORMS = [
     Platform.BINARY_SENSOR,
-    Platform.NUMBER,
     Platform.CLIMATE,
     Platform.COVER,
     Platform.FAN,
     Platform.LIGHT,
     Platform.LOCK,
     Platform.SCENE,
+    Platform.NUMBER,
     Platform.SENSOR,
     Platform.SWITCH,
 ]

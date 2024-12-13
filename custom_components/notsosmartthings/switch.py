@@ -24,7 +24,7 @@ async def async_setup_entry(
 ) -> None:
     """Add switches for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
-    entities = []
+    entities: list[SwitchEntity] = []
 
     for device in broker.devices.values():
         if broker.any_assigned(device.device_id, Platform.SWITCH):
