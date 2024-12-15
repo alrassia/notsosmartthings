@@ -55,11 +55,10 @@ def get_device_components(device) -> dict[str | None, list[str] | None]:
             if "disabledCapabilities" in component.attributes:
                 disabled_capabilities = component.attributes["disabledCapabilities"].value
         else:
-            component = device.status.components["main"]
             component_id = "main"
-            component_attributes = list(component.attributes.keys())
-            if "disabledCapabilities" in component.attributes:
-                disabled_capabilities = component.attributes["disabledCapabilities"].value
+            component_attributes = list(device.status.attributes.keys())
+            if "disabledCapabilities" in component_attributes:
+                disabled_capabilities = device.status.attributes["disabledCapabilities"].value
                 
         result[component_id] = {
             "attributes": component_attributes,
