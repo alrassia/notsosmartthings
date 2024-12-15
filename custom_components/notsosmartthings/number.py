@@ -74,6 +74,7 @@ async def async_setup_entry(
     for device in broker.devices.values():
         _LOGGER.debug(f"Adding numbers for device: {device.label}")
         device_components = get_device_components(device)
+        _LOGGER.debug(f"Number: Device components are: {device_components.keys()}")
         for component_id in list(device_components.keys()):
             _LOGGER.debug(f"Adding numbers of component_id: {component_id} with {device_components[component_id]}")
             attributes = device_components[component_id]["attributes"]
@@ -88,7 +89,6 @@ def _get_device_number_entities(
 ) -> list[NumberEntity]:
     entities: list[NumberEntity] = []
     _LOGGER.debug(f"Number: Getting number capabilities found {broker.get_assigned(device.device_id, Platform.NUMBER)}")
-    _LOGGER.debug(f"Number: component attributes is {component_attributes}")
     for capability in broker.get_assigned(device.device_id, Platform.NUMBER):
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Number: Skipping disabled capability: {capability}")
