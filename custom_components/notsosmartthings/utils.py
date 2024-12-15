@@ -48,13 +48,18 @@ def get_device_components(device) -> dict[str | None, list[str] | None]:
         component_attributes = None
         disabled_capabilities = []
 
-        component = device.status.components[component_key]
-        component_id = component.component_id
-        component_attributes = list(component.attributes.keys())
-        if "disabledCapabilities" in component.attributes:
-            disabled_capabilities = component.attributes["disabledCapabilities"].value
-        if component_id is None or component_id == "None":
+        if component_key is not None:
+            component = device.status.components[component_key]
+            component_id = component.component_id
+            component_attributes = list(component.attributes.keys())
+            if "disabledCapabilities" in component.attributes:
+                disabled_capabilities = component.attributes["disabledCapabilities"].value
+        else:
+            component = device.status.components["main"]
             component_id = "main"
+            component_attributes = list(component.attributes.keys())
+            if "disabledCapabilities" in component.attributes:
+                disabled_capabilities = component.attributes["disabledCapabilities"].value
                 
         result[component_id] = {
             "attributes": component_attributes,
