@@ -77,7 +77,6 @@ async def async_setup_entry(
         for component_id in list(device_components.keys()):
             _LOGGER.debug(f"Adding numbers of component_id: {component_id} with {device_components[component_id]}")
             attributes = device_components[component_id]["attributes"]
-            _LOGGER.debug(f"Number: attributes is {attributes}")
             disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             entities.extend(
                 _get_device_number_entities(broker, device, component_id, attributes, disabled_capabilities)
