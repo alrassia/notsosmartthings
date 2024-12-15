@@ -22,10 +22,10 @@ def get_device_status(device, component_id: str | None) -> DeviceStatusBase:
     """Choose the status object based on device and component id."""
     status = device.status
 
-    if component_id is not None:
-        status = status.components[component_id]
     if component_id is "main":
         status = device.status
+    elif component_id is not None:
+        status = status.components[component_id]
 
     return status
 
