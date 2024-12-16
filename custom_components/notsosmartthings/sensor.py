@@ -14,12 +14,12 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    AREA_SQUARE_METERS,
     CONCENTRATION_PARTS_PER_MILLION,
     LIGHT_LUX,
     PERCENTAGE,
     EntityCategory,
     Platform,
+    UnitOfArea,
     UnitOfElectricPotential,
     UnitOfEnergy,
     UnitOfMass,
@@ -98,7 +98,7 @@ CAPABILITY_TO_SENSORS: dict[str, list[Map]] = {
         Map(
             Attribute.bmi_measurement,
             "Body Mass Index",
-            f"{UnitOfMass.KILOGRAMS}/{AREA_SQUARE_METERS}",
+            f"{UnitOfMass.KILOGRAMS}/{UnitOfArea.SQUARE_METERS}",
             None,
             SensorStateClass.MEASUREMENT,
             None,
