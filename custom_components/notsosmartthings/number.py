@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Literal
+from typing import Any, NamedTuple, Literal
 from collections.abc import Sequence
 import logging
 
@@ -25,7 +25,7 @@ from .device import DeviceEntity
 _LOGGER = logging.getLogger(__name__)
 
 # Define the namedtuple for capabilities
-class Map(NamedTuple):
+class NumberMap(NamedTuple):
     """Tuple for mapping Smartthings capabilities to Home Assistant sensors."""
 
     attribute: str
@@ -42,30 +42,30 @@ class Map(NamedTuple):
 # Example capabilities
 CAPABILITY_TO_NUMBER = {
     Capability.thermostat_cooling_setpoint: [
-        Map(
-            Attribute.cooling_setpoint,
-            "Cooling Setpoint",
-            "set_cooling_setpoint",
-            UnitOfTemperature.CELSIUS,
-            NumberDeviceClass.TEMPERATURE,
-            -460,
-            10000,
-            1,
-            NumberMode.AUTO,
-            None,
+        NumberMap(
+            attribute=Attribute.cooling_setpoint,
+            name="Cooling Setpoint",
+            command="set_cooling_setpoint",
+            default_unit=UnitOfTemperature.CELSIUS,
+            device_class=NumberDeviceClass.TEMPERATURE,
+            min_value=-460,
+            max_value=10000,
+            step=1,
+            mode=NumberMode.AUTO,
+            entity_category=None,
         ),
-        Map(
-            Attribute.cooling_setpoint_range,
-            "Cooling Setpoint Range",
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
+        NumberMap(
+            attribute=Attribute.cooling_setpoint_range,
+            name="Cooling Setpoint Range",
+            command=None,
+            default_unit=None,
+            device_class=None,
+            min_value=None,
+            max_value=None,
+            step=None,
+            mode=None,
+            entity_category=None,
+        ),
     ],
 }
 
@@ -86,50 +86,60 @@ async def async_setup_entry(
     for device in broker.devices.values():
         _LOGGER.debug(f"Adding numbers for device: {device.label}")
         device_components = get_device_components(device)
-        _LOGGER.debug(f"Number: Device components are: {device_components.keys()}")
-        for component_id in list(device_components.keys()):
+        for component_id, component_info in device_components.items():
             _LOGGER.debug(f"Adding numbers of component_id: {component_id} with {device_components[component_id]}")
-            attributes = device_components[component_id]["attributes"]
-            disabled_capabilities = device_components[component_id]["disabled_capabilities"]
             entities.extend(
-                _get_device_number_entities(broker, device, component_id, attributes, disabled_capabilities)
+                _get_device_number_entities(broker, device, component_id, component_info)
             )
     async_add_entities(entities)
 
 def _get_device_number_entities(
-    broker, device, component_id: str | None, component_attributes: list[str] | None, disabled_capabilities: list[str] | None
+    broker: Any, 
+    device: DeviceEntity, 
+    component_id: str | None, 
+    component_info: dict[str, Any],
 ) -> list[NumberEntity]:
     entities: list[NumberEntity] = []
-    _LOGGER.debug(f"Number: Getting number capabilities found {broker.get_assigned(device.device_id, Platform.NUMBER)}")
+    component_attributes = component_info["attributes"]
+    disabled_capabilities = component_info["disabled_capabilities"]
+    
     for capability in broker.get_assigned(device.device_id, Platform.NUMBER):
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Number: Skipping disabled capability: {capability}")
             continue
-        maps = CAPABILITY_TO_NUMBER[capability]
-        _LOGGER.debug(f"adding number capability: {maps}")
-        for m in maps:
-            if (
-                component_attributes is not None
-                and m.attribute not in component_attributes
-            ):
-                continue
-                    
-            if m.attribute in Attribute.cooling_setpoint:
-                SmartThingsNumber(
-                    device,
-                    Attribute.cooling_setpoint,
-                    "Cooling Setpoint",
-                    "set_cooling_setpoint",
-                    UnitOfTemperature.CELSIUS,
-                    NumberDeviceClass.TEMPERATURE,
-                    component_attributes[Attribute.cooling_setpoint_range]["minimum"].value, 
-                    component_attributes[Attribute.cooling_setpoint_range]["maximum"].value, 
-                    component_attributes[Attribute.cooling_setpoint_range]["step"].value, 
-                    NumberMode.AUTO,
-                    None,
-                    component_id,
-                ),
+
+        if capability == Capability.thermostat_cooling_setpoint:
+            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability}")
+            if Attribute.cooling_setpoint_range in component_attributes:
+                cooling_setpoint_range_attr = component_attributes[Attribute.cooling_setpoint_range]
+                cooling_setpoint_range = cooling_setpoint_range_attr.value
+                min_value = cooling_setpoint_range.get("minimum")
+                max_value = cooling_setpoint_range.get("maximum")
+                step = cooling_setpoint_range.get("step")
+                entities.append(
+                    SmartThingsNumber(
+                        device,
+                        Attribute.cooling_setpoint,
+                        "Cooling Setpoint",
+                        "set_cooling_setpoint",
+                        UnitOfTemperature.CELSIUS,
+                        NumberDeviceClass.TEMPERATURE,
+                        min_value,
+                        max_value,
+                        step,
+                        NumberMode.AUTO,
+                        None,
+                        component_id,
+                    )
+                )
             else:
+                _LOGGER.warning(f"Cooling setpoint range not found in component attributes for device {device.label}")
+        else:
+            maps = CAPABILITY_TO_NUMBER[capability]
+            _LOGGER.debug(f"Number: {component_id} Adding number entity: {m.name}")
+            for m in maps:
+                if m.attribute not in component_attributes:
+                    continue
                 entity = SmartThingsNumber(
                     device,
                     m.attribute,
@@ -144,7 +154,8 @@ def _get_device_number_entities(
                     m.entity_category,
                     component_id,
                 )
-            entities.append(entity)
+                entities.append(entity)
+
     return entities
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
@@ -170,13 +181,13 @@ class SmartThingsNumber(SmartThingsEntity, NumberEntity):
         mode: NumberMode | None,
         entity_category: EntityCategory | None,
         component_id: str | None = None,
-
     ) -> None:
         """Initialize the entity."""	
         super().__init__(device)
         self._component_id = component_id
         self._attribute = attribute
-        
+        self._command = command
+       
         self._attr_name = format_component_name(device.label, name, component_id)
         self._attr_unique_id = format_component_name(
             device.device_id, attribute, component_id, "."
@@ -185,7 +196,6 @@ class SmartThingsNumber(SmartThingsEntity, NumberEntity):
         self._attr_native_max_value = max_value
         self._attr_native_step = step
         self._attr_mode = mode
-        self._attr_command = command
         self._attr_entity_category = entity_category
         self._attr_native_unit_of_measurement = default_unit
         self._attr_device_class = device_class
