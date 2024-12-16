@@ -54,6 +54,18 @@ CAPABILITY_TO_NUMBER = {
             NumberMode.AUTO,
             None,
         ),
+        Map(
+            Attribute.cooling_setpoint_range,
+            "Cooling Setpoint Range",
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
     ],
 }
 
@@ -93,41 +105,31 @@ def _get_device_number_entities(
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Number: Skipping disabled capability: {capability}")
             continue
-        if capability == Capability.thermostat_cooling_setpoint:
-            
-            _LOGGER.debug(f"Adding thermostat cooling setpoint capability: {capability} of {component_id}")
-            entities.extend(
-                [
-                    SmartThingsNumber(
-                        device,
-                        Attribute.cooling_setpoint,
-                        "Cooling Setpoint",
-                        "set_cooling_setpoint",
-                        UnitOfTemperature.CELSIUS,
-                        NumberDeviceClass.TEMPERATURE,
-                        1, 
-                        7, 
-                        1, 
-                        NumberMode.AUTO,
-                        None,
-                        component_id,
-                    ),
-                ]
-            )
-        else:
-            maps = CAPABILITY_TO_NUMBER[capability]
-            _LOGGER.debug(f"adding number capability: {maps}")
-            for m in maps:
-                if (
-                    component_attributes is not None
-                    and m.attribute not in component_attributes
-                ):
-                    continue
+        maps = CAPABILITY_TO_NUMBER[capability]
+        _LOGGER.debug(f"adding number capability: {maps}")
+        for m in maps:
+            if (
+                component_attributes is not None
+                and m.attribute not in component_attributes
+            ):
+                continue
                     
-                if component_id is None and m.attribute in [
+            if m.attribute in Attribute.cooling_setpoint:
+                SmartThingsNumber(
+                    device,
                     Attribute.cooling_setpoint,
-                ]:
-                    continue
+                    "Cooling Setpoint",
+                    "set_cooling_setpoint",
+                    UnitOfTemperature.CELSIUS,
+                    NumberDeviceClass.TEMPERATURE,
+                    component_attributes[Attribute.cooling_setpoint_range]["minimum"].value, 
+                    component_attributes[Attribute.cooling_setpoint_range]["maximum"].value, 
+                    component_attributes[Attribute.cooling_setpoint_range]["step"].value, 
+                    NumberMode.AUTO,
+                    None,
+                    component_id,
+                ),
+            else:
                 entity = SmartThingsNumber(
                     device,
                     m.attribute,
