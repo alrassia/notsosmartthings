@@ -608,16 +608,14 @@ def _get_device_sensor_entities(
                 ]
             )
         elif capability == Capability.power_consumption_report:
-            
-            _LOGGER.debug(f"adding power consumption sensor {component_attributes}")
-            entities.extend(
-                [
-                    SmartThingsPowerConsumptionSensor(device, report_name, component_id)
-                    for report_name in POWER_CONSUMPTION_REPORT_NAMES
-                    if component_attributes is None 
-                    or "PowerConsumption" in component_attributes
-                ]
-            )
+            if Attribute.power_consumption in component_attributes:
+                _LOGGER.debug(f"adding power consumption sensor")
+                entities.extend(
+                    [
+                        SmartThingsPowerConsumptionSensor(device, report_name, component_id)
+                        for report_name in POWER_CONSUMPTION_REPORT_NAMES
+                    ]
+                )
         else:
             maps = CAPABILITY_TO_SENSORS[capability]
             _LOGGER.debug(f"adding sensor capability: {capability}")

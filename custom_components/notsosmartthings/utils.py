@@ -9,7 +9,7 @@ def format_component_name(
     """Format component name according to convention."""
     parts = [prefix]
 
-    if component_id is not None:
+    if component_id is not None and not "main":
         parts.append(component_id)
 
     parts.append(suffix)
