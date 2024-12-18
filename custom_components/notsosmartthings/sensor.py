@@ -595,6 +595,8 @@ def _get_device_sensor_entities(
         if capability in disabled_capabilities:
             _LOGGER.debug(f"Skipping disabled capability: {capability}")
             continue
+        elif component_attributes is None:
+            continue
         if capability == Capability.three_axis:
             _LOGGER.debug(f"adding three axis sensor")
             entities.extend(
@@ -606,13 +608,14 @@ def _get_device_sensor_entities(
                 ]
             )
         elif capability == Capability.power_consumption_report:
+            
             _LOGGER.debug(f"adding power consumption sensor {component_attributes}")
             entities.extend(
                 [
                     SmartThingsPowerConsumptionSensor(device, report_name, component_id)
                     for report_name in POWER_CONSUMPTION_REPORT_NAMES
-                    #if component_attributes is not None
-                    #or report_name in component_attributes
+                    if component_attributes is None 
+                    or "PowerConsumption" in component_attributes
                 ]
             )
         else:
