@@ -8,9 +8,16 @@ i deviced nit to copy any of the other forks to keep it a bit fresh and clean, p
 
 # features
 - up to date with latest state of ha core integration
-- supports components of devices
+- Supports following entities more than core:
+    - Number
+- supports components of devices for the following Entity types:
+    - sensor
+    - number
+    - binary_sensor
+    - light
+    switch
 - supports disabled components
-- supports disabled abilities of components (sensor only, rest to follow)
+- supports disabled capabilities of components (sensor only, others to follow)
 
 # credits
 - @elad-bar for his never merged patch to ha core adding support for components. i blatantly copied that code and modified it a bit to get components to work.
