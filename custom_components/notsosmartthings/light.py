@@ -10,7 +10,7 @@ from pysmartthings import Capability
 
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
-    ATTR_COLOR_TEMP,
+    ATTR_COLOR_TEMP_KELVIN,
     ATTR_HS_COLOR,
     ATTR_TRANSITION,
     ColorMode,
@@ -22,7 +22,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-import homeassistant.util.color as color_util
 
 from .const import DATA_BROKERS, DOMAIN
 from .entity import SmartThingsEntity
@@ -90,12 +89,12 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
     # SmartThings does not expose this attribute, instead it's
     # implemented within each device-type handler.  This value is the
     # lowest kelvin found supported across 20+ handlers.
-    _attr_max_mireds = 500  # 2000K
+    _attr_min_color_temp_kelvin = 2000  # 500 mireds
 
     # SmartThings does not expose this attribute, instead it's
     # implemented within each device-type handler.  This value is the
     # highest kelvin found supported across 20+ handlers.
-    _attr_min_mireds = 111  # 9000K
+    _attr_max_color_temp_kelvin = 9000  # 111 mireds
 
     def __init__(self, device, component_id: str | None = None) -> None:
         """Init the class."""
@@ -143,8 +142,8 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
         """Turn the light on."""
         tasks = []
         # Color temperature
-        if ATTR_COLOR_TEMP in kwargs:
-            tasks.append(self.async_set_color_temp(kwargs[ATTR_COLOR_TEMP]))
+        if ATTR_COLOR_TEMP_KELVIN in kwargs:
+            tasks.append(self.async_set_color_temp(kwargs[ATTR_COLOR_TEMP_KELVIN]))
         # Color
         if ATTR_HS_COLOR in kwargs:
             tasks.append(self.async_set_color(kwargs[ATTR_HS_COLOR]))
@@ -191,9 +190,7 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
             self._attr_brightness = int(convert_scale(status.level, 100, 255, 0))
         # Color Temperature
         if ColorMode.COLOR_TEMP in self._attr_supported_color_modes:
-            self._attr_color_temp = color_util.color_temperature_kelvin_to_mired(
-                status.color_temperature
-            )
+            self._attr_color_temp_kelvin = self._device.status.color_temperature
         # Color
         if ColorMode.HS in self._attr_supported_color_modes:
             self._attr_hs_color = (
@@ -213,10 +210,9 @@ class SmartThingsLight(SmartThingsEntity, LightEntity):
             component_id=self._external_component_id,
         )
 
-    async def async_set_color_temp(self, value: float):
+    async def async_set_color_temp(self, value: int):
         """Set the color temperature of the device."""
-        kelvin = color_util.color_temperature_mired_to_kelvin(value)
-        kelvin = max(min(kelvin, 30000), 1)
+        kelvin = max(min(value, 30000), 1)
         await self._device.set_color_temperature(
             kelvin, set_status=True, component_id=self._external_component_id
         )
