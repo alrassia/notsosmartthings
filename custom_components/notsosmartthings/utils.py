@@ -9,7 +9,7 @@ def format_component_name(
     """Format component name according to convention."""
     parts = [prefix]
 
-    if component_id is not None and component_id is not "main":
+    if component_id != None and component_id != "main":
         parts.append(component_id)
 
     parts.append(suffix)
@@ -25,7 +25,7 @@ def get_device_status(device, component_id: str | None) -> DeviceStatusBase:
 
     if component_id == "main":
         status = device.status
-    elif component_id is not None:
+    elif component_id != None:
         status = status.components[component_id]
 
     return status
@@ -44,7 +44,7 @@ def get_device_components(device) -> dict[str | None, list[str, Any]]:
     disabled_components = device.status.attributes["disabledComponents"].value
     
     for component_key in components_keys:
-        if component_key is not None and component_key in disabled_components:
+        if component_key != None and component_key in disabled_components:
             continue
 
         component_id = None
@@ -52,7 +52,7 @@ def get_device_components(device) -> dict[str | None, list[str, Any]]:
         component_capabilities = None
         disabled_capabilities = []
 
-        if component_key is not None:
+        if component_key != None:
             component = device.status.components[component_key]
             component_id = component.component_id
             component_attributes = {attr_name: attr for attr_name, attr in component.attributes.items()}
